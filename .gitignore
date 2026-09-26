@@ -1,0 +1,42 @@
+# Gradle build output and caches
+.gradle/
+**/build/
+.kotlin/
+out/
+target/
+dist/
+
+# Keep the Gradle Wrapper files available to contributors.
+# (gradle/wrapper/gradle-wrapper.jar and gradle-wrapper.properties are tracked.)
+
+# IntelliJ IDEA local project state
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Local machine configuration; keep the root gradle.properties build settings.
+local.properties
+gradle-local.properties
+*.local.properties
+
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
+
+# Logs and temporary files
+*.log
+logs/
+*.tmp
+*.temp
+*.bak
+*.orig
+*.swp
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
