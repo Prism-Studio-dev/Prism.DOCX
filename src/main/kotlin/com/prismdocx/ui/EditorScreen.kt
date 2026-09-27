@@ -41,6 +41,14 @@ import com.prismdocx.ui.components.NoticePanel
 import com.prismdocx.ui.components.PendingActionDialog
 import com.prismdocx.ui.components.Sidebar
 import com.prismdocx.ui.components.XmlEditor
+import androidx.compose.foundation.Image
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import com.prismdocx.resources.Res
+import com.prismdocx.resources.haruhi
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 internal fun EditorScreen(
@@ -49,47 +57,64 @@ internal fun EditorScreen(
     onOpen: () -> Unit,
     onSave: () -> Unit,
 ) {
-    Surface(Modifier.fillMaxSize()) {
-        DocxDropArea(
-            enabled = controller.canOpen && !closeRequested,
-            onFile = controller::requestOpen,
-            onError = controller::showError,
-        ) {
-            BoxWithConstraints {
-                val compact = maxWidth < 1000.dp
-                Row(Modifier.fillMaxSize()) {
-                    if (controller.source != null) {
-                        Sidebar(
-                            controller.section, compact, controller.darkTheme,
-                            controller::selectSection, controller::toggleTheme
-                        )
-                        Box(
-                            Modifier.width(1.dp).fillMaxHeight()
-                                .background(MaterialTheme.colorScheme.outlineVariant)
-                        )
-                    }
-                    Column(Modifier.weight(1f).fillMaxHeight()) {
-                        EditorHeader(
-                            controller.source != null, controller.busy, controller.dirty,
-                            controller.darkTheme, controller::toggleTheme
-                        )
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        if (controller.busy) {
-                            LinearProgressIndicator(Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.primary)
-                        }
-                        EditorContent(controller, compact, onOpen, Modifier.weight(1f).fillMaxWidth())
+    Box(Modifier.fillMaxSize()) {
+        Surface(Modifier.fillMaxSize()) {
+            DocxDropArea(
+                enabled = controller.canOpen && !closeRequested,
+                onFile = controller::requestOpen,
+                onError = controller::showError,
+            ) {
+                BoxWithConstraints {
+                    val compact = maxWidth < 1000.dp
+                    Row(Modifier.fillMaxSize()) {
                         if (controller.source != null) {
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                            EditorFooter(
-                                controller.validationErrors, controller.canSave,
-                                controller.canOpen && controller.dirty, controller::requestReset, onSave
+                            Sidebar(
+                                controller.section, compact, controller.darkTheme,
+                                controller::selectSection, controller::toggleTheme
                             )
+                            Box(
+                                Modifier.width(1.dp).fillMaxHeight()
+                                    .background(MaterialTheme.colorScheme.outlineVariant)
+                            )
+                        }
+                        Column(Modifier.weight(1f).fillMaxHeight()) {
+                            EditorHeader(
+                                controller.source != null, controller.busy, controller.dirty,
+                                controller.darkTheme, controller::toggleTheme
+                            )
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            if (controller.busy) {
+                                LinearProgressIndicator(
+                                    Modifier.fillMaxWidth(),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            EditorContent(controller, compact, onOpen, Modifier.weight(1f).fillMaxWidth())
+                            if (controller.source != null) {
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                EditorFooter(
+                                    controller.validationErrors, controller.canSave,
+                                    controller.canOpen && controller.dirty, controller::requestReset, onSave
+                                )
+                            }
                         }
                     }
                 }
             }
         }
+
+        Image(
+            painter = painterResource(Res.drawable.haruhi),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .fillMaxHeight(0.88f)
+                .alpha(1f)
+                .padding(bottom = 80.dp )
+        )
     }
+
     controller.pendingAction?.let { pending ->
         PendingActionDialog(pending.message, controller::confirmPending, controller::cancelPending)
     }
@@ -102,7 +127,8 @@ private fun EditorContent(controller: EditorController, compact: Boolean, onOpen
     LaunchedEffect(controller.section) { scroll.scrollTo(0) }
     Box(modifier) {
         Column(
-            Modifier.fillMaxSize().verticalScroll(scroll)
+            Modifier.fillMaxSize()
+                .verticalScroll(scroll)
                 .padding(horizontal = if (compact) 28.dp else 48.dp, vertical = 30.dp),
             verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
@@ -115,18 +141,21 @@ private fun EditorContent(controller: EditorController, compact: Boolean, onOpen
                     )
                 }
             } else {
-                Column {
-                    Text(controller.section.title, style = MaterialTheme.typography.headlineLarge)
-                    Text(
-                        controller.section.subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
+                Column(
+                    modifier = Modifier.widthIn(max = 780.dp),
+                    verticalArrangement = Arrangement.spacedBy(22.dp)
+                ) {
+                    Column {
+                        Text(controller.section.title, style = MaterialTheme.typography.headlineLarge)
+                        Text(
+                            controller.section.subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+                    DocumentPanel(source, !controller.canOpen, onOpen)
+                    controller.notice?.let { NoticePanel(it) }
+                    EditorSectionContent(controller, compact)
                 }
-                DocumentPanel(source, !controller.canOpen, onOpen)
-            }
-            controller.notice?.let { NoticePanel(it) }
-            if (source != null) {
-                EditorSectionContent(controller, compact)
             }
             Spacer(Modifier.height(10.dp))
         }
