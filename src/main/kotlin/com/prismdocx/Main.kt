@@ -21,7 +21,7 @@ fun main() = application {
     var closeRequested by remember { mutableStateOf(false) }
     Window(
         onCloseRequest = { closeRequested = true },
-        title = "Prism.DOCX MHS v$APP_VERSION — метаданные",
+        title = "Prism.DOCX v$APP_VERSION — метаданные",
         icon = painterResource(Res.drawable.prism_docx_app_icon),
         state = rememberWindowState(width = 1200.dp, height = 850.dp),
     ) {
