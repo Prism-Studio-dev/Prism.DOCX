@@ -1,5 +1,6 @@
 package com.prismdocx.editor
 
+import com.prismdocx.metadata.CustomProperty
 import com.prismdocx.metadata.MetadataEditor
 import com.prismdocx.metadata.MetadataPart
 import com.prismdocx.metadata.MetadataRepository
@@ -124,6 +125,40 @@ class EditorControllerTest {
         assertFalse(editor.canSave)
         editor.changeField(pages, "12")
         assertTrue(editor.canSave)
+    }
+
+    @Test fun editingCustomPropertyRefreshesValueAndValidationTogether() {
+        val editor = controller()
+        editor.changeCustom(CustomProperty("", "Номер", "i4", "invalid"))
+        assertEquals("Номер", editor.customProperties.single().name)
+        assertFalse(editor.canSave)
+
+        editor.changeCustom(editor.customProperties.single().copy(value = "42"))
+        assertEquals("42", editor.customProperties.single().value)
+        assertTrue(editor.canSave)
+    }
+
+    @Test fun appliesXmlForAllMetadataPartsBeforeSaving() {
+        val editor = controller()
+        val company = metadataFields.single { it.key == "Company" }
+        val updatedCore = MetadataEditor.setValue(editor.draft, title, "Core XML")
+        val updatedApp = MetadataEditor.setValue(updatedCore, company, "App XML")
+        val updatedAll = MetadataEditor.setCustom(updatedApp, CustomProperty("", "Номер", "i4", "7"))
+
+        MetadataPart.entries.forEach { part ->
+            editor.selectXmlPart(part)
+            editor.changeXml(updatedAll.xml.getValue(part))
+            editor.applyXml()
+            assertNull(editor.xmlDraft)
+            assertTrue(editor.canSave)
+        }
+
+        assertEquals("Core XML", editor.values.getValue(title.key))
+        assertEquals("App XML", editor.values.getValue(company.key))
+        assertEquals("7", editor.customProperties.single().value)
+        val target = SaveTarget(File("copy.docx"), overwrite = false)
+        editor.save(target)
+        assertEquals(target, repository.savedTarget)
     }
 
     @Test fun closingDirtySessionRequiresExplicitConfirmation() {

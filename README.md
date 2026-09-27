@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/Compose%20Desktop-1.7.3-4285F4?style=flat-square" alt="Compose Desktop 1.7.3">
   <img src="https://img.shields.io/badge/Platform-Windows-0078D4?style=flat-square&amp;logo=windows&amp;logoColor=white" alt="Windows">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2E7D32?style=flat-square" alt="MIT License"></a>
-  <img src="https://img.shields.io/badge/Version-v1.0.0-424242?style=flat-square" alt="Version v1.0.0">
+  <img src="https://img.shields.io/badge/Version-v1.0.1-424242?style=flat-square" alt="Version v1.0.1">
 </p>
 
 <p>
@@ -45,8 +45,8 @@ Prism.DOCX помогает управлять свойствами Word-док�
 
 1. Откройте [GitHub Releases](../../releases).
 2. Скачайте один из установщиков для Windows:
-   - <code>PrismDOCX-1.0.0.exe</code>
-   - <code>PrismDOCX-1.0.0.msi</code>
+   - <code>PrismDOCX-1.0.1.exe</code>
+   - <code>PrismDOCX-1.0.1.msi</code>
 3. Запустите установщик и завершите установку приложения.
 
 ## Использование

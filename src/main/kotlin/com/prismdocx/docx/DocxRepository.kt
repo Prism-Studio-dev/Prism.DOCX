@@ -23,7 +23,7 @@ class DocxRepository : MetadataRepository {
         val manifest = DocxPackageManifest.open(zip)
         MetadataSnapshot(MetadataPart.entries.associateWith { part ->
             zip.getEntry(manifest.pathOf(part))?.let { entry ->
-                val document = parse(readXml(zip, entry))
+                val document = readXml(zip, entry)
                 checkRoot(document, part)
                 serialize(document)
             } ?: serialize(newPart(part))

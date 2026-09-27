@@ -2,7 +2,6 @@ package com.prismdocx.docx
 
 import com.prismdocx.metadata.MetadataPart
 import com.prismdocx.metadata.XmlSupport.children
-import com.prismdocx.metadata.XmlSupport.parse
 import com.prismdocx.metadata.XmlSupport.serialize
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -67,11 +66,11 @@ internal class DocxPackageManifest private constructor(
             val entryNames = zip.entries().asSequence().map { it.name }.toList()
             require(entryNames.size == entryNames.toSet().size) { "В архиве повторяются имена частей." }
 
-            val types = parse(readXml(zip, typesEntry))
+            val types = readXml(zip, typesEntry)
             require(types.documentElement.namespaceURI == CT_NS && types.documentElement.localName == "Types") {
                 "Некорректный список типов DOCX."
             }
-            val relationships = parse(readXml(zip, relationshipsEntry))
+            val relationships = readXml(zip, relationshipsEntry)
             require(relationships.documentElement.namespaceURI == REL_NS && relationships.documentElement.localName == "Relationships") {
                 "Некорректные связи DOCX."
             }

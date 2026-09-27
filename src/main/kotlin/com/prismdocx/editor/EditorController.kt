@@ -51,13 +51,11 @@ class EditorController(
     var xmlDraft by mutableStateOf<String?>(null)
         private set
 
-    // Вычисления выполняются один раз на изменение снимка, а не при каждой перерисовке.
-    var values by mutableStateOf(MetadataEditor.values(draft))
-        private set
-    var customProperties by mutableStateOf(MetadataEditor.customProperties(draft))
-        private set
-    var validationErrors by mutableStateOf(MetadataValidation.validationErrors(draft))
-        private set
+    // Все производные данные вычисляются вместе по одному разбору каждой XML-части.
+    private var inspection by mutableStateOf(MetadataValidation.inspect(draft))
+    val values: Map<String, String> get() = inspection.values
+    val customProperties: List<CustomProperty> get() = inspection.customProperties
+    val validationErrors: List<String> get() = inspection.validationErrors
 
     val dirty: Boolean get() = draft != baseline || xmlDraft != null
     val canEdit: Boolean get() = source != null && !busy && pendingAction == null && xmlDraft == null
@@ -178,13 +176,9 @@ class EditorController(
     }
 
     private fun updateDraft(snapshot: MetadataSnapshot) {
-        val updatedValues = MetadataEditor.values(snapshot)
-        val updatedCustom = MetadataEditor.customProperties(snapshot)
-        val updatedErrors = MetadataValidation.validationErrors(snapshot)
+        val updated = MetadataValidation.inspect(snapshot)
         draft = snapshot
-        values = updatedValues
-        customProperties = updatedCustom
-        validationErrors = updatedErrors
+        inspection = updated
     }
 
     private fun editXml(action: () -> Unit) {

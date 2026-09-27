@@ -3,7 +3,14 @@ package com.prismdocx.metadata
 import com.prismdocx.metadata.XmlSupport.checkRoot
 import com.prismdocx.metadata.XmlSupport.parse
 import com.prismdocx.metadata.XmlSupport.children
+import org.w3c.dom.Element
 import java.time.OffsetDateTime
+
+internal data class MetadataInspection(
+    val values: Map<String, String>,
+    val customProperties: List<CustomProperty>,
+    val validationErrors: List<String>,
+)
 
 /** Проверки общих полей и пользовательских значений; не заменяют полную XSD-валидацию OOXML. */
 object MetadataValidation {
@@ -21,20 +28,40 @@ object MetadataValidation {
         }
     }
 
-    fun validationErrors(snapshot: MetadataSnapshot): List<String> = buildList {
-        val values = MetadataEditor.values(snapshot)
+    fun validationErrors(snapshot: MetadataSnapshot): List<String> {
+        val parts = parsedParts(snapshot)
+        return validationErrors(parts, MetadataEditor.values(parts))
+    }
+
+    internal fun inspect(snapshot: MetadataSnapshot): MetadataInspection {
+        val parts = parsedParts(snapshot)
+        val values = MetadataEditor.values(parts)
+        return MetadataInspection(
+            values,
+            MetadataEditor.customProperties(parts.getValue(MetadataPart.CUSTOM)),
+            validationErrors(parts, values),
+        )
+    }
+
+    private fun parsedParts(snapshot: MetadataSnapshot): Map<MetadataPart, List<Element>> =
+        snapshot.xml.mapValues { (part, xml) ->
+            val document = parse(xml)
+            checkRoot(document, part)
+            children(document.documentElement)
+        }
+
+    private fun validationErrors(parts: Map<MetadataPart, List<Element>>, values: Map<String, String>): List<String> = buildList {
         metadataFields.forEach { field ->
             fieldError(field, values.getValue(field.key))?.let { add("${field.label}: $it") }
         }
-        val docs = snapshot.xml.mapValues { parse(it.value).also { doc -> checkRoot(doc, it.key) } }
         metadataFields.forEach { field ->
-            if (children(docs.getValue(field.part).documentElement).count {
+            if (parts.getValue(field.part).count {
                     it.namespaceURI == field.namespace && it.localName == field.key
                 } > 1) {
                 add("Повторяющееся свойство: ${field.label}")
             }
         }
-        val properties = children(docs.getValue(MetadataPart.CUSTOM).documentElement)
+        val properties = parts.getValue(MetadataPart.CUSTOM)
         val names = mutableSetOf<String>()
         val ids = mutableSetOf<String>()
         properties.forEach { property ->

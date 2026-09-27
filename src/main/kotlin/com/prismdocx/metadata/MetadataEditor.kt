@@ -6,6 +6,7 @@ import com.prismdocx.metadata.XmlSupport.checkRoot
 import com.prismdocx.metadata.XmlSupport.parse
 import com.prismdocx.metadata.XmlSupport.children
 import com.prismdocx.metadata.XmlSupport.serialize
+import org.w3c.dom.Element
 import javax.xml.XMLConstants
 
 /** Чистые преобразования снимка: неизвестные элементы XML сохраняются вместе с известными полями. */
@@ -18,13 +19,14 @@ object MetadataEditor {
         children(parse(snapshot.xml.getValue(field.part)).documentElement)
             .firstOrNull { it.namespaceURI == field.namespace && it.localName == field.key }?.textContent.orEmpty()
 
-    fun values(snapshot: MetadataSnapshot): Map<String, String> {
-        val documents = snapshot.xml.mapValues { parse(it.value) }
-        return metadataFields.associate { field ->
-            field.key to children(documents.getValue(field.part).documentElement)
+    fun values(snapshot: MetadataSnapshot): Map<String, String> =
+        values(snapshot.xml.mapValues { children(parse(it.value).documentElement) })
+
+    internal fun values(parts: Map<MetadataPart, List<Element>>): Map<String, String> =
+        metadataFields.associate { field ->
+            field.key to parts.getValue(field.part)
                 .firstOrNull { it.namespaceURI == field.namespace && it.localName == field.key }?.textContent.orEmpty()
         }
-    }
 
     fun setValue(snapshot: MetadataSnapshot, field: MetadataField, value: String): MetadataSnapshot {
         val doc = parse(snapshot.xml.getValue(field.part))
@@ -46,7 +48,10 @@ object MetadataEditor {
     }
 
     fun customProperties(snapshot: MetadataSnapshot): List<CustomProperty> =
-        children(parse(snapshot.xml.getValue(MetadataPart.CUSTOM)).documentElement).map { property ->
+        customProperties(children(parse(snapshot.xml.getValue(MetadataPart.CUSTOM)).documentElement))
+
+    internal fun customProperties(properties: List<Element>): List<CustomProperty> =
+        properties.map { property ->
             val value = children(property).firstOrNull()
             CustomProperty(property.getAttribute("pid"), property.getAttribute("name"), value?.localName.orEmpty(),
                 if (value != null && children(value).isEmpty()) value.textContent else "[Составное значение — XML]")
