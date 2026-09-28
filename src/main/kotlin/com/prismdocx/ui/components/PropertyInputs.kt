@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.prismdocx.metadata.FieldKind
 import com.prismdocx.metadata.MetadataField
 import com.prismdocx.metadata.MetadataValidation
+import com.prismdocx.ui.theme.themedOutlinedTextFieldColors
 
 private val booleanOptions = linkedMapOf(
     "" to "Не задано",
@@ -45,6 +46,7 @@ internal fun PropertyInput(field: MetadataField, value: String, enabled: Boolean
             OutlinedTextField(value, onChange, enabled = enabled, modifier = Modifier.fillMaxWidth(),
                 shape = RectangleShape, singleLine = field.kind != FieldKind.MULTILINE,
                 minLines = if (field.kind == FieldKind.MULTILINE) 3 else 1, isError = error != null,
+                colors = themedOutlinedTextFieldColors(),
                 placeholder = { Text(if (field.kind == FieldKind.DATE) "2026-09-23T12:00:00+03:00" else "Не задано", fontSize = 13.sp) })
         }
         val hint = error ?: field.hint

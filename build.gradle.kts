@@ -16,7 +16,7 @@ tasks.register<JavaExec>("renderPreview") {
 }
 
 group = "com.prismdocx"
-version = "1.0.1"
+version = "1.1.0"
 
 repositories {
     mavenCentral()

@@ -25,11 +25,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.prismdocx.editor.EditorController
 import com.prismdocx.metadata.MetadataSection
+import com.prismdocx.settings.AppThemeId
 import com.prismdocx.ui.components.CustomEditor
 import com.prismdocx.ui.components.DocumentPanel
 import com.prismdocx.ui.components.DocxDropArea
@@ -40,16 +45,21 @@ import com.prismdocx.ui.components.MetadataForm
 import com.prismdocx.ui.components.NoticePanel
 import com.prismdocx.ui.components.PendingActionDialog
 import com.prismdocx.ui.components.Sidebar
+import com.prismdocx.ui.components.SettingsDialog
 import com.prismdocx.ui.components.XmlEditor
 
 @Composable
 internal fun EditorScreen(
     controller: EditorController,
     closeRequested: Boolean,
+    selectedTheme: AppThemeId,
+    settingsError: String?,
+    onThemeSelected: (AppThemeId) -> Unit,
     onOpen: () -> Unit,
     onSave: () -> Unit,
 ) {
-    Surface(Modifier.fillMaxSize()) {
+    var settingsOpen by remember { mutableStateOf(false) }
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         DocxDropArea(
             enabled = controller.canOpen && !closeRequested,
             onFile = controller::requestOpen,
@@ -60,8 +70,8 @@ internal fun EditorScreen(
                 Row(Modifier.fillMaxSize()) {
                     if (controller.source != null) {
                         Sidebar(
-                            controller.section, compact, controller.darkTheme,
-                            controller::selectSection, controller::toggleTheme
+                            controller.section, compact,
+                            controller::selectSection, { settingsOpen = true }
                         )
                         Box(
                             Modifier.width(1.dp).fillMaxHeight()
@@ -71,7 +81,7 @@ internal fun EditorScreen(
                     Column(Modifier.weight(1f).fillMaxHeight()) {
                         EditorHeader(
                             controller.source != null, controller.busy, controller.dirty,
-                            controller.darkTheme, controller::toggleTheme
+                            { settingsOpen = true }
                         )
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         if (controller.busy) {
@@ -92,6 +102,9 @@ internal fun EditorScreen(
     }
     controller.pendingAction?.let { pending ->
         PendingActionDialog(pending.message, controller::confirmPending, controller::cancelPending)
+    }
+    if (settingsOpen) {
+        SettingsDialog(selectedTheme, onThemeSelected, settingsError) { settingsOpen = false }
     }
 }
 

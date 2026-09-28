@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import com.prismdocx.metadata.CustomProperty
 import com.prismdocx.metadata.customTypes
+import com.prismdocx.ui.theme.themedOutlinedTextFieldColors
 
 @Composable
 internal fun CustomEditor(
@@ -37,7 +38,8 @@ internal fun CustomEditor(
                 verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(property.name, { onChange(property.copy(name = it)) }, label = { Text("Название свойства") },
-                        enabled = enabled, singleLine = true, modifier = Modifier.weight(1f), shape = RectangleShape)
+                        enabled = enabled, singleLine = true, modifier = Modifier.weight(1f), shape = RectangleShape,
+                        colors = themedOutlinedTextFieldColors())
                     TextButton(shape = RectangleShape, enabled = enabled, onClick = { onRemove(property.id) }) { Text("Удалить") }
                 }
                 if (property.type in customTypes) {
@@ -48,7 +50,8 @@ internal fun CustomEditor(
                             }
                         }
                         OutlinedTextField(property.value, { onChange(property.copy(value = it)) }, label = { Text("Значение") },
-                            enabled = enabled, modifier = Modifier.weight(1f), shape = RectangleShape)
+                            enabled = enabled, modifier = Modifier.weight(1f), shape = RectangleShape,
+                            colors = themedOutlinedTextFieldColors())
                     }
                 } else Text("Тип ${property.type}. Значение доступно в XML-редакторе.", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

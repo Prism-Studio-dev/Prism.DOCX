@@ -18,6 +18,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
+import java.nio.file.AccessDeniedException
+import java.nio.file.FileSystemException
+import java.nio.file.NoSuchFileException
 
 /**
  * Владеет состоянием одной сессии редактора. Методы вызываются из UI-потока.
@@ -44,8 +48,6 @@ class EditorController(
         private set
     var search by mutableStateOf("")
         private set
-    var darkTheme by mutableStateOf(false)
-        private set
     var xmlPart by mutableStateOf(MetadataPart.CORE)
         private set
     var xmlDraft by mutableStateOf<String?>(null)
@@ -63,8 +65,6 @@ class EditorController(
     val canOpen: Boolean get() = !busy && pendingAction == null
     val xmlText: String get() = xmlDraft ?: draft.xml.getValue(xmlPart)
 
-    fun toggleTheme() { darkTheme = !darkTheme }
-
     fun selectSection(value: MetadataSection) {
         section = value
         search = ""
@@ -72,9 +72,9 @@ class EditorController(
 
     fun search(value: String) { search = value }
 
-    fun requestOpen(file: File) {
+    fun requestOpen(file: File, onOpened: (() -> Unit)? = null) {
         if (!canOpen) return
-        confirmIfDirty("Открыть «${file.name}» и потерять несохранённые изменения?") { load(file) }
+        confirmIfDirty("Открыть «${file.name}» и потерять несохранённые изменения?") { load(file, onOpened) }
     }
 
     fun requestClose(onExit: () -> Unit, onCancel: () -> Unit) {
@@ -152,7 +152,17 @@ class EditorController(
         val saving = draft
         runFileOperation("Ошибка сохранения") {
             withContext(ioDispatcher) {
-                repository.write(sourceFile, target.file, saving, target.overwrite)
+                try {
+                    repository.write(sourceFile, target.file, saving, target.overwrite)
+                } catch (_: AccessDeniedException) {
+                    throw IOException("Нет доступа к файлу или папке для сохранения.")
+                } catch (_: NoSuchFileException) {
+                    throw IOException("Исходный файл или папка сохранения больше не существует.")
+                } catch (_: FileSystemException) {
+                    throw IOException("Не удалось записать файл. Возможно, он открыт в другой программе.")
+                } catch (_: IOException) {
+                    throw IOException("Не удалось сохранить копию. Проверьте доступность папки и файла.")
+                }
             }
             // Сброс возвращает форму к последней сохранённой копии, а не перечитывает исходник.
             baseline = saving
@@ -160,7 +170,7 @@ class EditorController(
         }
     }
 
-    private fun load(file: File) = runFileOperation("Не удалось открыть документ.") {
+    private fun load(file: File, onOpened: (() -> Unit)?) = runFileOperation("Не удалось открыть документ.") {
         val loaded = withContext(ioDispatcher) { repository.read(file) }
         // Текущий документ заменяется только после успешного чтения нового.
         updateDraft(loaded)
@@ -168,6 +178,7 @@ class EditorController(
         baseline = loaded
         xmlDraft = null
         notice = null
+        onOpened?.invoke()
     }
 
     private fun confirmIfDirty(message: String, onCancel: () -> Unit = {}, action: () -> Unit) {

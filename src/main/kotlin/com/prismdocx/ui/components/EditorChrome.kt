@@ -22,14 +22,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.prismdocx.editor.EditorNotice
 
 @Composable
-internal fun EditorHeader(loaded: Boolean, busy: Boolean, dirty: Boolean, darkTheme: Boolean, onToggleTheme: () -> Unit) {
+internal fun EditorHeader(loaded: Boolean, busy: Boolean, dirty: Boolean, onOpenSettings: () -> Unit) {
     Row(Modifier.fillMaxWidth().padding(horizontal = 28.dp, vertical = if (loaded) 18.dp else 10.dp),
         verticalAlignment = Alignment.CenterVertically) {
         if (loaded) {
@@ -38,11 +36,10 @@ internal fun EditorHeader(loaded: Boolean, busy: Boolean, dirty: Boolean, darkTh
             Text(if (busy) "Обработка…" else if (dirty) "●  Есть изменения" else "●  Нет изменений",
                 style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         } else {
-            BrandLogo(darkTheme, Modifier.width(178.dp).height(62.dp))
+            BrandLogo(Modifier.width(178.dp).height(62.dp))
             Spacer(Modifier.weight(1f))
-            OutlinedButton(shape = RectangleShape, onClick = onToggleTheme,
-                modifier = Modifier.semantics { stateDescription = if (darkTheme) "Тёмная тема" else "Светлая тема" }) {
-                Text("Сменить тему")
+            OutlinedButton(shape = RectangleShape, onClick = onOpenSettings) {
+                Text("Настройки")
             }
         }
     }

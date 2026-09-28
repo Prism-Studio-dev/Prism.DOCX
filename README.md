@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/Compose%20Desktop-1.7.3-4285F4?style=flat-square" alt="Compose Desktop 1.7.3">
   <img src="https://img.shields.io/badge/Platform-Windows-0078D4?style=flat-square&amp;logo=windows&amp;logoColor=white" alt="Windows">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-2E7D32?style=flat-square" alt="MIT License"></a>
-  <img src="https://img.shields.io/badge/Version-v1.0.1-424242?style=flat-square" alt="Version v1.0.1">
+  <img src="https://img.shields.io/badge/Version-v1.1.0-424242?style=flat-square" alt="Version v1.1.0">
 </p>
 
 <p>
@@ -37,16 +37,17 @@ Prism.DOCX помогает управлять свойствами Word-док�
 - Просмотр и редактирование 39 стандартных свойств, поиск по ним.
 - Добавление, изменение и удаление пользовательских свойств: текст, целые и дробные числа, логические значения и даты.
 - Просмотр и редактирование редких и составных значений через XML-редактор.
-- Открытие одного DOCX через диалог выбора файла или перетаскиванием в окно приложения.
-- Светлая и тёмная темы, проверка распространённых типов данных и предупреждение о несохранённых изменениях.
+- Диалоги открытия DOCX и сохранения копии соответствуют выбранной теме; документ также можно перетащить в окно приложения.
+- Встроенные темы Prism, Светлая, Тёмная, Graphite, Violet, Emerald и Nord; выбор в меню «Настройки» сохраняется между запусками.
+- Проверка распространённых типов данных и предупреждение о несохранённых изменениях.
 - Сохранение в отдельную копию с подтверждением замены уже существующего результата.
 
 ## Установка
 
 1. Откройте [GitHub Releases](../../releases).
 2. Скачайте один из установщиков для Windows:
-   - <code>PrismDOCX-1.0.1.exe</code>
-   - <code>PrismDOCX-1.0.1.msi</code>
+   - <code>PrismDOCX-1.1.0.exe</code>
+   - <code>PrismDOCX-1.1.0.msi</code>
 3. Запустите установщик и завершите установку приложения.
 
 ## Использование

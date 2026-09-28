@@ -78,6 +78,27 @@ class EditorControllerTest {
         assertEquals(1, repository.reads)
     }
 
+    @Test fun openSuccessCallbackRunsOnlyForCompletedOpen() {
+        val editor = controller()
+        var callbacks = 0
+        editor.changeField(title, "Unsaved")
+
+        editor.requestOpen(File("cancelled.docx")) { callbacks++ }
+        editor.cancelPending()
+        assertEquals(0, callbacks)
+
+        repository.failure = IOException("Cannot read")
+        editor.requestOpen(File("broken.docx")) { callbacks++ }
+        editor.confirmPending()
+        assertEquals(0, callbacks)
+
+        repository.failure = null
+        editor.requestOpen(File("valid.docx")) { callbacks++ }
+        editor.confirmPending()
+        assertEquals(1, callbacks)
+        assertEquals(File("valid.docx"), editor.source)
+    }
+
     @Test fun successfulSaveEstablishesResetBaselineButFailedSaveDoesNot() {
         val editor = controller()
         editor.changeField(title, "Saved")

@@ -2,6 +2,9 @@ package com.prismdocx.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,15 +20,16 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.prismdocx.metadata.MetadataSection
+import com.prismdocx.ui.theme.LocalThemePalette
 
 private val documentSections = listOf(
     MetadataSection.DESCRIPTION,
@@ -40,15 +44,14 @@ private val advancedSections = listOf(MetadataSection.CUSTOM, MetadataSection.XM
 internal fun Sidebar(
     section: MetadataSection,
     compact: Boolean,
-    darkTheme: Boolean,
     onSelectSection: (MetadataSection) -> Unit,
-    onToggleTheme: () -> Unit,
+    onOpenSettings: () -> Unit,
 ) {
     Column(
         Modifier.width(if (compact) 195.dp else 238.dp).fillMaxHeight()
             .background(MaterialTheme.colorScheme.surfaceVariant).padding(20.dp),
     ) {
-        BrandLogo(darkTheme, Modifier.fillMaxWidth().height(68.dp))
+        BrandLogo(Modifier.fillMaxWidth().height(68.dp))
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top = 28.dp)) {
             SidebarGroupLabel("СВОЙСТВА ДОКУМЕНТА")
             documentSections.forEach { item ->
@@ -62,10 +65,9 @@ internal fun Sidebar(
             }
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        OutlinedButton(shape = RectangleShape, onClick = onToggleTheme,
-            modifier = Modifier.fillMaxWidth().padding(top = 10.dp)
-                .semantics { stateDescription = if (darkTheme) "Тёмная тема" else "Светлая тема" }) {
-            Text("Сменить тему")
+        OutlinedButton(shape = RectangleShape, onClick = onOpenSettings,
+            modifier = Modifier.fillMaxWidth().padding(top = 10.dp)) {
+            Text("Настройки")
         }
         Text("PRISM.DOCX", style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(12.dp))
@@ -81,10 +83,19 @@ private fun SidebarGroupLabel(label: String) {
 
 @Composable
 private fun SidebarItem(item: MetadataSection, selected: Boolean, onClick: () -> Unit) {
-    Surface(color = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-        shape = RectangleShape, modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val hovered by interactionSource.collectIsHoveredAsState()
+    val colors = MaterialTheme.colorScheme
+    val background = when {
+        selected -> LocalThemePalette.current.selected
+        hovered -> LocalThemePalette.current.hover
+        else -> Color.Transparent
+    }
+    Surface(color = background, shape = RectangleShape,
+        modifier = Modifier.fillMaxWidth().hoverable(interactionSource).clickable(onClick = onClick)) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(item.title, style = MaterialTheme.typography.bodyMedium,
+                color = if (selected) colors.onPrimaryContainer else colors.onSurface,
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal)
         }
     }

@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.prismdocx.metadata.MetadataField
 import com.prismdocx.metadata.MetadataSection
 import com.prismdocx.metadata.metadataFields
+import com.prismdocx.ui.theme.themedOutlinedTextFieldColors
 
 @Composable
 internal fun MetadataForm(
@@ -30,7 +31,8 @@ internal fun MetadataForm(
         trailingIcon = if (search.isBlank()) null else {
             { TextButton(onClick = { onSearch("") }, shape = RectangleShape) { Text("Очистить") } }
         },
-        singleLine = true, shape = RectangleShape, modifier = Modifier.fillMaxWidth())
+        singleLine = true, shape = RectangleShape, colors = themedOutlinedTextFieldColors(),
+        modifier = Modifier.fillMaxWidth())
     val fields = metadataFields.filter {
         (search.isNotBlank() || it.section == section) &&
             (search.isBlank() || it.label.contains(search, true) || it.key.contains(search, true))

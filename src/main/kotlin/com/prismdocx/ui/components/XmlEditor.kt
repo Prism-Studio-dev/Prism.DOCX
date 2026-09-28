@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.prismdocx.metadata.MetadataPart
+import com.prismdocx.ui.theme.themedOutlinedTextFieldColors
 
 @Composable
 internal fun XmlEditor(part: MetadataPart, xml: String, changed: Boolean, busy: Boolean, onPart: (MetadataPart) -> Unit,
@@ -31,6 +32,7 @@ internal fun XmlEditor(part: MetadataPart, xml: String, changed: Boolean, busy: 
         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     OutlinedTextField(xml, onChange, enabled = !busy,
         modifier = Modifier.fillMaxWidth().height(360.dp), shape = RectangleShape,
+        colors = themedOutlinedTextFieldColors(),
         textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace, lineHeight = 21.sp))
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Button(shape = RectangleShape, onClick = onApply, enabled = changed && !busy) { Text("Применить XML") }
