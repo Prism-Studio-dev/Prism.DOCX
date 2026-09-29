@@ -94,6 +94,8 @@ import kotlinx.coroutines.withContext
 
 internal enum class PickerMode { OPEN, SAVE }
 
+private const val MAX_NAVIGATION_HISTORY = 100
+
 internal sealed interface PickerResult {
     data class Open(val path: Path) : PickerResult
     data class Save(val destination: SaveDestination) : PickerResult
@@ -211,8 +213,11 @@ internal fun FilePickerPanel(
     }
 
     fun navigateTo(path: Path) {
-        if (path == directory) return
-        directory?.let(backStack::add)
+        if (path.toAbsolutePath().normalize() == directory?.toAbsolutePath()?.normalize()) return
+        directory?.let {
+            if (backStack.size == MAX_NAVIGATION_HISTORY) backStack.removeAt(0)
+            backStack.add(it)
+        }
         directory = path
         resetForNavigation()
     }

@@ -25,7 +25,7 @@ fun resolveSaveDestination(directory: Path, inputName: String, source: Path): Sa
     } catch (_: InvalidPathException) {
         throw InvalidSaveDestinationException("Недопустимое имя файла. Укажите другое имя.")
     }
-    if (!Files.isDirectory(directory, NOFOLLOW_LINKS)) {
+    if (!Files.isDirectory(directory)) {
         throw InvalidSaveDestinationException("Папка больше не существует. Выберите другую папку.")
     }
     if (!Files.isWritable(directory)) {

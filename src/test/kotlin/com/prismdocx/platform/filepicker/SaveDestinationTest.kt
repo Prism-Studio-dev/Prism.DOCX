@@ -1,6 +1,7 @@
 package com.prismdocx.platform.filepicker
 
 import java.nio.file.Files
+import java.nio.file.FileSystemException
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -39,6 +40,22 @@ class SaveDestinationTest {
         assertFailsWith<InvalidSaveDestinationException> {
             resolveSaveDestination(directory.resolve("missing"), "copy", source)
         }
+    }
+
+    @Test fun linkedDirectoryCanBeUsedForSaveCopyWhenAvailable() = withDirectory { directory, source ->
+        val target = Files.createDirectory(directory.resolve("target"))
+        val link = directory.resolve("linked")
+        try {
+            Files.createSymbolicLink(link, target)
+        } catch (_: FileSystemException) {
+            return@withDirectory // Windows may require Developer Mode or symlink privileges.
+        } catch (_: UnsupportedOperationException) {
+            return@withDirectory
+        } catch (_: SecurityException) {
+            return@withDirectory
+        }
+
+        assertEquals(link.resolve("copy.docx"), resolveSaveDestination(link, "copy", source).path)
     }
 
     private fun withDirectory(block: (Path, Path) -> Unit) {
