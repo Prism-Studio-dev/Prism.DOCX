@@ -2,7 +2,7 @@
 
 <img src="src/main/composeResources/drawable/prism_docx_app_icon.svg" alt="Иконка Prism.DOCX" width="88" height="88">
 
-<h1>Prism.DOCX</h1>
+<h1>Prism.DOCX Unstable</h1>
 
 <p>Настольное приложение для просмотра и редактирования метаданных документов Microsoft Word (.docx).</p>
 
@@ -25,6 +25,21 @@
 </p>
 
 </div>
+
+## Prism.DOCX Unstable
+
+Эта unstable-ветка экспериментальная и не является стабильным релизом.
+Она содержит Windows Rust Core (Kotlin → JNA → Rust), который собирается в Release
+и поставляется с EXE/MSI `PrismDOCXUnstable`. Для сборки этой ветки кроме JDK 21
+нужны Cargo и Rust MSVC toolchain. Установленному приложению они не нужны.
+
+Production XML validation остаётся Kotlin: у экспериментального Rust validator
+есть подтверждённые semantic differences. Если native library недоступна или
+несовместима, приложение продолжает работать с Kotlin и пишет diagnostic в console.
+Development benchmark показал разные результаты в зависимости от размера XML;
+общее преимущество Rust над Kotlin не заявляется.
+Подробности, Debug/Release tasks, integration tests и benchmark —
+[Rust Core README](native/prism-docx-core/README.md).
 
 ## О проекте
 

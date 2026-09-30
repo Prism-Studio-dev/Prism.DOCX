@@ -13,23 +13,27 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.prismdocx.ui.App
+import com.prismdocx.metadata.XmlValidation
 import java.awt.Dimension
 
 private const val APP_VERSION = "1.1.1"
 
-fun main() = application {
-    var closeRequested by remember { mutableStateOf(false) }
-    Window(
-        onCloseRequest = { closeRequested = true },
-        title = "Prism.DOCX v$APP_VERSION — метаданные",
-        icon = painterResource(Res.drawable.prism_docx_app_icon),
-        state = rememberWindowState(width = 1200.dp, height = 850.dp),
-    ) {
-        LaunchedEffect(Unit) { window.minimumSize = Dimension(820, 640) }
-        App(
-            onExit = ::exitApplication,
-            closeRequested = closeRequested,
-            onCancelClose = { closeRequested = false },
-        )
+fun main() {
+    XmlValidation.initialize()
+    application {
+        var closeRequested by remember { mutableStateOf(false) }
+        Window(
+            onCloseRequest = { closeRequested = true },
+            title = "Prism.DOCX Unstable v$APP_VERSION — метаданные",
+            icon = painterResource(Res.drawable.prism_docx_app_icon),
+            state = rememberWindowState(width = 1200.dp, height = 850.dp),
+        ) {
+            LaunchedEffect(Unit) { window.minimumSize = Dimension(820, 640) }
+            App(
+                onExit = ::exitApplication,
+                closeRequested = closeRequested,
+                onCancelClose = { closeRequested = false },
+            )
+        }
     }
 }

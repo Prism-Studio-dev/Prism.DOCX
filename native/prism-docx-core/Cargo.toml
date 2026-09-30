@@ -1,0 +1,11 @@
+[package]
+name = "prism-docx-core"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "prism_docx_core"
+crate-type = ["cdylib"]
+
+[dependencies]
+xml = "1.4.0"

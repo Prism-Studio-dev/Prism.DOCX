@@ -46,7 +46,9 @@ internal object XmlSupport {
         })
     }
 
-    fun parse(xml: String): Document = builder().parse(InputSource(StringReader(xml)))
+    fun parse(xml: String): Document = XmlValidation.parse(xml)
+
+    internal fun parseWithKotlin(xml: String): Document = builder().parse(InputSource(StringReader(xml)))
 
     fun parse(bytes: ByteArray): Document = builder().parse(ByteArrayInputStream(bytes))
 
